@@ -11,7 +11,8 @@ public:
     
     void undistortion(cv::Mat &src, cv::Mat &dst)
     {
-        remap.remap(src, dst);
+        remap.remap_v2(src, dst);
+        // remap.remap(src, dst);
         return;
     }
     void undistortion_benchmark(double &delay)

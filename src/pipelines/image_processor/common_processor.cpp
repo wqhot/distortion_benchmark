@@ -38,10 +38,10 @@ int CommonProcessor::process_image(CommonProcessor *processer)
         cv::Mat image = item.first;
 
         processer->add_alpha(image, image);
-
-
+        cv::Mat image_resize;
+        processer->resize_uniform(image, image_resize, cv::Size(1920, 720));
         TicToc undistortion_toc;
-        processer->remap.undistortion(image, image);
+        processer->remap.undistortion(image_resize, image);
         double delay = undistortion_toc.toc();
         processer->remap.undistortion_benchmark(delay);
         undistortion_toc.toc_print("undistortion");
@@ -61,6 +61,58 @@ int CommonProcessor::process_image(CommonProcessor *processer)
     std::cout << "----------------------------" << std::endl;
     std::cout << " avg result: " << benchmark << std::endl;
     std::cout << "----------------------------" << std::endl;
+    return 0;
+}
+
+int CommonProcessor::resize_uniform(cv::Mat &src, cv::Mat &dst, cv::Size dst_size)
+{
+    int w = src.cols;
+    int h = src.rows;
+    int dst_w = dst_size.width;
+    int dst_h = dst_size.height;
+    // std::cout << "src: (" << h << ", " << w << ")" << std::endl;
+    cv::Mat dst_ = cv::Mat(cv::Size(dst_w, dst_h), src.type(), cv::Scalar(0));
+
+    float ratio_src = w * 1.0 / h;
+    float ratio_dst = dst_w * 1.0 / dst_h;
+
+    int tmp_w = 0;
+    int tmp_h = 0;
+    if (ratio_src > ratio_dst)
+    {
+        tmp_w = dst_w;
+        tmp_h = floor((dst_w * 1.0 / w) * h);
+    }
+    else if (ratio_src < ratio_dst)
+    {
+        tmp_h = dst_h;
+        tmp_w = floor((dst_h * 1.0 / h) * w);
+    }
+    else
+    {
+        resize(src, dst_, dst_size);
+        return 0;
+    }
+
+    cv::Mat tmp;
+    resize(src, tmp, cv::Size(tmp_w, tmp_h));
+
+    if (tmp_w != dst_w)
+    { //高对齐，宽没对齐
+        int index_w = floor((dst_w - tmp_w) / 2.0);
+        tmp.copyTo(dst_.colRange(index_w, tmp_w + index_w));
+    }
+    else if (tmp_h != dst_h)
+    { //宽对齐， 高没有对齐
+        int index_h = floor((dst_h - tmp_h) / 2.0);
+        tmp.copyTo(dst_.rowRange(index_h, tmp_h + index_h));
+    }
+    else
+    {
+        printf("error\n");
+    }
+
+    dst = dst_;
     return 0;
 }
 

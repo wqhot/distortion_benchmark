@@ -26,6 +26,8 @@ private:
     int screen_cols;
     
     bool load_yaml();
+    int resize_uniform(cv::Mat &src, cv::Mat &dst, cv::Size dst_size);
+
     ImageUtils remap;
 
     int add_alpha(cv::Mat &src, cv::Mat &dst);
