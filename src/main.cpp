@@ -113,11 +113,6 @@ int main(int argc, char **argv)
     }
     
     pipelines.stop();
-    double benchmark = -1;
-    ImageUtils::undistortion_benchmark(benchmark);
-    std::flush(std::cout);
-    std::cout << "----------------------------" << std::endl;
-    std::cout << " avg result: " << benchmark << std::endl;
-    std::cout << "----------------------------" << std::endl;
+    
     return 0;
 }

@@ -17,5 +17,4 @@ if [ $version = "release" ]
       cmake -D BUILD_TYPE=DEBUG -D PLATFORM=ARM ../..
 fi
 make -j8
-# scp ./zntk_ar greatwall@192.168.50.101:/home/greatwall/zntk/bin/
-# scp ./benchmark greatwall@192.168.50.101:/home/greatwall/zntk/bin/
+scp ./distortion_benchmark greatwall@192.168.50.101:/home/greatwall/zntk/bin/

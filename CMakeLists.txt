@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 if (PLATFORM STREQUAL "ARM")
 include(cross.cmake)
-add_definitions("-DKYLIN_BUILD")
-add_definitions("-DCAMBRION_BUILD")
 else (PLATFORM STREQUAL "ARM")
 SET(CMAKE_FIND_ROOT_PATH /usr)
-remove_definitions("-DKYLIN_BUILD")
-remove_definitions("-DCAMBRION_BUILD")
 endif (PLATFORM STREQUAL "ARM")
 
 project(distortion_benchmark)
@@ -59,23 +55,16 @@ add_library(pipelines
         src/pipelines/pipelines.cpp
 )
 
-if (PLATFORM STREQUAL "ARM")
-        target_link_libraries(pipelines
-                consumer
-                producer
-                processor
-    
-                common
-        )
-else (PLATFORM STREQUAL "ARM")
-        target_link_libraries(pipelines
-                consumer
-                producer
-                processor
-                common
-        )
-endif (PLATFORM STREQUAL "ARM")
+target_link_libraries(consumer
+        /home/wang/libs/cross/install/lib/libjibianv2.so
+)
 
+target_link_libraries(pipelines
+        consumer
+        producer
+        processor
+        common
+)
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 

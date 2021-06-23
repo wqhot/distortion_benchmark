@@ -2,7 +2,7 @@
 
 #include <atomic>
 #include <pipelines/thread_manage.h>
-#include <common/ref_lock.h>
+#include <opencv2/opencv.hpp>
 #include <opencv2/imgproc.hpp>
 #include <common/tic_toc.h>
 #include <common/clock.h>
@@ -31,7 +31,6 @@ public:
     ~ImageConsumer()
     {
         keep = false;
-        global_reflock.disconnect(hud_name);
     }
     void pop_test(cv::Mat &image)
     {

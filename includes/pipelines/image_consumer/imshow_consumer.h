@@ -16,8 +16,6 @@ public:
         output_scale = 1;
         screen_cols = 1280;
         screen_rows = 720;
-
-        cv::namedWindow("consumer", cv::WINDOW_FULLSCREEN);
         // cv::startWindowThread();
     };
 
