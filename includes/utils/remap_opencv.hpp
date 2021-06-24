@@ -37,6 +37,7 @@ public:
                 elm_size);
         }
         dst = dst_;
+        cv::flip(dst.colRange(0, FINAL_COLS / 2), dst.colRange(FINAL_COLS / 2, FINAL_COLS), -1);
     }
 
     void remap(cv::Mat &src, cv::Mat &dst)
@@ -46,21 +47,24 @@ public:
         int rows = src.rows;
         int cols = src.cols;
         // 加上黑边
+        dst = cv::Mat(cv::Size(FINAL_COLS, FINAL_ROWS), src.type(), cv::Scalar(0));
         cv::Mat src_extend(cv::Size(cols, rows + 1), src.type(), cv::Scalar(0));
         src.copyTo(src_extend.rowRange(0, rows));
-        cv::remap(src_extend, dst, remap_matrix[1], remap_matrix[0], cv::INTER_NEAREST);
+        cv::remap(src_extend, dst.colRange(0, FINAL_COLS / 2), remap_matrix[1], remap_matrix[0], cv::INTER_NEAREST);
+        cv::flip(dst.colRange(0, FINAL_COLS / 2), dst.colRange(FINAL_COLS / 2, FINAL_COLS), -1);
     }
 
 private:
     int load_remap_mat(int rows, int cols)
     {
         cv::Mat offset_matrix(cv::Size(cols, rows), CV_32FC2, offset_mat);
+        cv::Mat offset_matrix_half = offset_matrix.colRange(0, cols / 2);
         remap_matrix.clear();
         //分离通道
-        cv::split(offset_matrix, remap_matrix);
+        cv::split(offset_matrix_half, remap_matrix);
         for (int i = 0; i < FINAL_ROWS; ++i)
         {
-            for (int j = 0; j < FINAL_COLS; ++j)
+            for (int j = 0; j < FINAL_COLS / 2; ++j)
             {
                 float y = offset_mat[2*  (i * FINAL_COLS + j)];
                 float x = offset_mat[2*  (i * FINAL_COLS + j) + 1];
