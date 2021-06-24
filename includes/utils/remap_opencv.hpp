@@ -50,8 +50,9 @@ public:
         dst = cv::Mat(cv::Size(FINAL_COLS, FINAL_ROWS), src.type(), cv::Scalar(0));
         cv::Mat src_extend(cv::Size(cols, rows + 1), src.type(), cv::Scalar(0));
         src.copyTo(src_extend.rowRange(0, rows));
-        cv::remap(src_extend, dst.colRange(0, FINAL_COLS / 2), remap_matrix[1], remap_matrix[0], cv::INTER_NEAREST);
-        cv::flip(dst.colRange(0, FINAL_COLS / 2), dst.colRange(FINAL_COLS / 2, FINAL_COLS), -1);
+        cv::Mat dst_roi = dst(dest_roi_range);
+        cv::remap(src_extend, dst_roi, remap_matrix[1](dest_roi_range), remap_matrix[0](dest_roi_range), cv::INTER_NEAREST);
+        cv::flip(dst_roi, dst(half_dest_roi_range), -1);
     }
 
 private:
@@ -62,6 +63,8 @@ private:
         remap_matrix.clear();
         //分离通道
         cv::split(offset_matrix_half, remap_matrix);
+        int min_i = FINAL_ROWS, min_j = FINAL_COLS;
+        int max_i = 0, max_j = 0;
         for (int i = 0; i < FINAL_ROWS; ++i)
         {
             for (int j = 0; j < FINAL_COLS / 2; ++j)
@@ -70,6 +73,22 @@ private:
                 float x = offset_mat[2*  (i * FINAL_COLS + j) + 1];
                 if (y != 720.0 && x != 0.0)
                 {
+                    if (min_i > i)
+                    {
+                        min_i = i;
+                    }
+                    if (min_j > j)
+                    {
+                        min_j = j;
+                    }
+                    if (max_i < i)
+                    {
+                        max_i = i;
+                    }
+                    if (max_j < j)
+                    {
+                        max_j = j;
+                    }
                     remap_offset.push_back(
                         std::make_pair(
                             std::make_pair(j, i),
@@ -77,6 +96,8 @@ private:
                 }
             }
         }
+        dest_roi_range = cv::Rect(cv::Point(min_j, min_i), cv::Point(max_j, max_i));
+        half_dest_roi_range = cv::Rect(cv::Point(FINAL_COLS - max_j - 1, min_i), cv::Point(FINAL_COLS - min_j - 1, max_i));
         return 0;
     }
 
@@ -136,4 +157,5 @@ private:
 private:
     std::vector<cv::Mat> remap_matrix;
     std::vector<std::pair<std::pair<int, int>, std::pair<float, float>>> remap_offset;
+    cv::Rect dest_roi_range, half_dest_roi_range;
 };

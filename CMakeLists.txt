@@ -56,7 +56,7 @@ add_library(pipelines
 )
 
 target_link_libraries(consumer
-        /home/wang/libs/cross/install/lib/libjibianv2.so
+        ${CMAKE_FIND_ROOT_PATH}/lib/libjibianv2.so
 )
 
 target_link_libraries(pipelines
